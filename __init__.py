@@ -8,7 +8,7 @@ bl_info = {
     "blender": (2, 90, 0),
     "location": "View3D > Tool Shelf > divider Tab",
     "description": "Create divisions",
-    "wiki_url": "https://github.com/xxx",
+    "wiki_url": "https://github.com/systemik/divider",
     "category": "3D View",
     "warning": "Early beta"
 }
@@ -61,6 +61,13 @@ class dividerProps(PropertyGroup):
         soft_max = 10
         )
 
+    float_speed_2nd : FloatProperty(
+        name = "Speed of second axis",
+        description = "Set the speed of the second axis animation",
+        default = 0,
+        min = 0,
+        max = 3
+        )
 
     float_min_span_x : FloatProperty(
         name = "min_span_x",
@@ -107,8 +114,6 @@ class dividerProps(PropertyGroup):
         description = "Alternate Calculation",
         default = False
         )
-
-        
 
     int_percentx : IntProperty(
         name = "X value",
@@ -208,6 +213,8 @@ class dividerPanel(bpy.types.Panel):
         col.separator()
         col.prop(scene.rg_props, "int_speed")
         col.separator()
+        col.prop(scene.rg_props, "float_speed_2nd")
+        col.separator()
         col.prop(scene.rg_props, "int_plane_size")
         col.separator()
         col.prop(scene.rg_props, "float_scale_factor", slider = True)
@@ -264,6 +271,7 @@ class divider(bpy.types.Operator):
         rgp = bpy.context.scene.rg_props
             
         speed = rgp.int_speed
+        speed_2nd = rgp.float_speed_2nd
         plane_size = rgp.int_plane_size
         nb_divide = rgp.int_divisions
         min_span_x = rgp.float_min_span_x
@@ -494,7 +502,9 @@ class divider(bpy.types.Operator):
             current_frame = bpy.context.scene.frame_current
             nb_fame = last_frame - first_frame + 1
             var_sinus = (math.sin(math.radians(current_frame*((360*speed)/nb_fame)))+1)/2
-            var_cosinus = (math.sin(math.radians(current_frame*((360*speed)/nb_fame)))+1)/2
+            var_cosinus = (math.cos(math.radians(current_frame*(((360-speed_2nd*90)*speed)/nb_fame)))+1)/2
+            #90->360
+            #sinus/cosinus
             
             flush_mesh(nb_divide,plane_size)
             
