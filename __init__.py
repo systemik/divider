@@ -115,6 +115,12 @@ class dividerProps(PropertyGroup):
         default = False
         )
 
+    bool_alternate_calc2 : BoolProperty(
+        name = "Alternate Calculation 2",
+        description = "Alternate Calculation 2",
+        default = False
+        )
+        
     int_percentx : IntProperty(
         name = "X value",
         description = "Set the X value",
@@ -174,18 +180,7 @@ class dividerProps(PropertyGroup):
         description = "Create modifiers with mask texture",
         default = True
         )
-        
-
-    #speed = 2
-    #plane_size = 8
-    ## nb_divide = 1
-    #min_span_x = 0.2
-    #max_span_x = 1.8
-    #min_span_y = 0.2
-    #max_span_y = 1.8
-    #scale_factor = 0.95
-    ##iterations = 2
-
+ 
 
 #----#
 # UI #
@@ -204,7 +199,6 @@ class dividerPanel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
         col = layout.column(align=False)
-        #row = layout.row(align=False)
         
         
         col.prop(scene.rg_props, "int_divisions")
@@ -227,26 +221,11 @@ class dividerPanel(bpy.types.Panel):
         col.separator()
         col.prop(scene.rg_props, "float_max_span_y", slider = True)
         col.separator()
-#        col.prop(scene.rg_props, "int_percentx", slider = True)
-#        col.separator()
-#        col.prop(scene.rg_props, "int_percenty", slider = True)
-#        col.separator()
-#        col.prop(scene.rg_props, "int_seed")
         col.prop(scene.rg_props, "bool_alternate_calc")
         col.separator()
-        
-#        col.separator()
-#        col.separator()
-#        col.prop(scene.rg_props, "float_noisestrength", slider = True)
-#        col.separator()        
-#        col.prop(scene.rg_props, "float_noiseloop", slider = True)
-#        col.separator()        
-#        col.prop(scene.rg_props, "float_noisefreq", slider = True)
-#        col.separator()
-        
-                
-        #col.prop(scene.rg_props, "bool_create_dupliface")
-        #col.prop(scene.rg_props, "bool_create_modifiers")
+        col.prop(scene.rg_props, "bool_alternate_calc2")
+        col.separator()        
+
         col.separator()
         
                 
@@ -281,7 +260,8 @@ class divider(bpy.types.Operator):
         scale_factor = rgp.float_scale_factor
         iterations = rgp.int_iterations
         alternate_calc = rgp.bool_alternate_calc
-
+        alternate_calc2 = rgp.bool_alternate_calc2
+        
     #---------------------------#
     # Get Plugin parameters     #
     # Issue with mathutil.noise #
@@ -292,7 +272,6 @@ class divider(bpy.types.Operator):
 
         def bmesh_from_pydata(bm, verts=None, edges=None, faces=None):
 
-            #print("FUNCTION bmesh_from_pydata")
             if not verts:
                 return bm
 
@@ -327,11 +306,6 @@ class divider(bpy.types.Operator):
         ###########
 
         def  vertice_calc(shift_x,shift_y,min_x,min_y,max_x,max_y):
-            
-            #print("FUNCTION vertice_calc2")
-            
-            #print((min_x, min_y, 0))
-            #print((max_x, min_y, 0))  
 
             half_x = (max_x-min_x)/2
             half_y = (max_y-min_y)/2
@@ -380,9 +354,7 @@ class divider(bpy.types.Operator):
             # |     |     |
             # |     |     | 
             # 0----4/5----1
-            
-            #print("FUNCTION polygon_cut2")
-            
+
             faces = [
             (0, 4, 12, 10),
             (11, 13, 8, 3),
@@ -405,12 +377,7 @@ class divider(bpy.types.Operator):
             for block in bpy.data.meshes:
                 if block.users == 0:
                     bpy.data.meshes.remove(block)
-                    
-            
-            #nb_divide = 1
-
-            
-            
+                 
             if not ("dividermesh" in bpy.data.meshes):
                 print("dividermesh initial creation")
                 mesh = bpy.data.meshes.new("dividermesh")  # add a new mesh
@@ -418,19 +385,7 @@ class divider(bpy.types.Operator):
                 scene = bpy.context.scene
                 scene.collection.objects.link(obj) 
                 bpy.context.view_layer.objects.active = obj
-        #        plane_size = 2
-        #        verts = [( plane_size,  plane_size,  0.0), 
-        #                ( plane_size, -plane_size,  0.0),
-        #                (-plane_size, -plane_size,  0.0),
-        #                (-plane_size,  plane_size,  0.0),
-        #                ]  # 4 verts made with XYZ coords
-        #        edges = []
-        #        faces = [[0, 1, 2, 3]]
-        #        mesh.from_pydata(verts, [], faces)
-        #        obj.select_set(True)
-        #        bpy.context.view_layer.objects.active = obj
-
-                
+    
             bm = bmesh.new()
             me = bpy.data.meshes['dividermesh']
             bm.from_mesh(me)
@@ -439,8 +394,6 @@ class divider(bpy.types.Operator):
             print("dividermesh create plane")
             mesh = bpy.data.meshes['dividermesh']
             obj = bpy.data.objects['Divider']
-            #mesh.update()
-            #plane_size = 8 
             
             verts = [( plane_size,  plane_size,  0.0), 
                     ( plane_size, -plane_size,  0.0),
@@ -455,28 +408,11 @@ class divider(bpy.types.Operator):
                 edges=bm.edges,
                 use_grid_fill=True,
                 cuts=nb_divide)
-        #        #edge_percents={bm.edges[0]:115,bm.edges[1]:60,bm.edges[2]:35})
             bm.to_mesh(me)
             bm.free()
-        #    bpy.ops.object.editmode_toggle()
-        #    bpy.ops.mesh.primitive_plane_add(size = plane_size, enter_editmode=False, align='WORLD', location=(0, 0, 0))
-        #    for div in range(nb_divide):
-        #        bpy.ops.mesh.subdivide()
-        #    #bpy.ops.mesh.subdivide()
-        #    bpy.ops.object.editmode_toggle()
+
             mesh.update()
-            #bpy.ops.object.shade_smooth()
-            
-            
-        #context = bpy.context
-        #obj = context.edit_object
-        #me = obj.data
-        #bm = bmesh.from_edit_mesh(me)
-        #bmesh.ops.subdivide_edges(bm,
-        #        edges=bm.edges,
-        #        use_grid_fill=True,
-        #        cuts=3)
-        #me.update()
+
 
         ###########
         #MAP RANGE
@@ -502,9 +438,10 @@ class divider(bpy.types.Operator):
             current_frame = bpy.context.scene.frame_current
             nb_fame = last_frame - first_frame + 1
             var_sinus = (math.sin(math.radians(current_frame*((360*speed)/nb_fame)))+1)/2
-            var_cosinus = (math.cos(math.radians(current_frame*(((360-speed_2nd*90)*speed)/nb_fame)))+1)/2
-            #90->360
-            #sinus/cosinus
+            if alternate_calc2:
+                var_cosinus = (math.sin(math.radians(current_frame*(((360-speed_2nd*90)*speed)/nb_fame)))+1)/2
+            else:
+                var_cosinus = (math.cos(math.radians(current_frame*(((360-speed_2nd*90)*speed)/nb_fame)))+1)/2
             
             flush_mesh(nb_divide,plane_size)
             
@@ -512,7 +449,6 @@ class divider(bpy.types.Operator):
             me = bpy.data.meshes['dividermesh']
             bm.from_mesh(me)
             bm.faces.ensure_lookup_table()
-            #nb_faces = len(bm.faces)
             face_select = list(bm.faces)
             seed = 0
             for iter in range(iterations):
@@ -554,7 +490,6 @@ class divider(bpy.types.Operator):
                 vec = (scale_factor,) * 3,
                 space = Matrix.Translation(-fa.calc_center_median()),
                 verts = fa.verts)
-                #r = random()
                 clayers = bm.loops.layers.color
                 color_layer = clayers.get('vertcolor') or clayers.new('vertcolor')
                 for lo in fa.loops:
