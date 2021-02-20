@@ -505,7 +505,8 @@ class divider(bpy.types.Operator):
 
         bpy.app.handlers.frame_change_post.clear()
         bpy.app.handlers.frame_change_post.append(execute_cut)
-
+        bpy.ops.screen.animation_play(reverse=False, sync=False)
+        
         return {'FINISHED'}
 
 
