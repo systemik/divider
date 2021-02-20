@@ -145,19 +145,6 @@ class dividerProps(PropertyGroup):
         soft_max = 100
         )
 
-    bool_create_dupliface : BoolProperty(
-        name = "Cube and dupliface",
-        description = "Create cube, parent it and enable dupliface",
-        default = True
-        )
-        
-    bool_create_modifiers : BoolProperty(
-        name = "Create modifiers",
-        description = "Create modifiers with mask texture",
-        default = True
-        )
- 
-
 #----#
 # UI #
 #----#
