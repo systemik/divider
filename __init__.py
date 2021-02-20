@@ -70,7 +70,7 @@ class dividerProps(PropertyGroup):
         )
 
     float_min_span_x : FloatProperty(
-        name = "min_span_x",
+        name = "Minimum x span",
         description = "Set the min_span_x",
         default = .5,
         min = 0,
@@ -78,7 +78,7 @@ class dividerProps(PropertyGroup):
         )
 
     float_min_span_y : FloatProperty(
-        name = "min_span_y",
+        name = "Minimum y span",
         description = "Set the min_span_y",
         default = .7,
         min = 0,
@@ -86,7 +86,7 @@ class dividerProps(PropertyGroup):
         )
 
     float_max_span_x : FloatProperty(
-        name = "max_span_x",
+        name = "Maximum x span",
         description = "Set the max_span_x",
         default = 1.5,
         min = 0,
@@ -94,7 +94,7 @@ class dividerProps(PropertyGroup):
         )
 
     float_max_span_y : FloatProperty(
-        name = "max_span_y",
+        name = "Maximum y span",
         description = "Set the max_span_y",
         default = 1.4,
         min = 0,
@@ -108,7 +108,15 @@ class dividerProps(PropertyGroup):
         min = 0,
         max = 1
         )
-
+        
+    int_seed : IntProperty(
+        name = "Seed",
+        description = "Set the seed for the division",
+        default = 123,
+        min = 1,
+        soft_max = 1000
+        )
+    
     bool_alternate_calc : BoolProperty(
         name = "Alternate Calculation",
         description = "Alternate Calculation",
@@ -135,38 +143,6 @@ class dividerProps(PropertyGroup):
         default = 13,
         min = 0,
         soft_max = 100
-        )
-
-    int_seed : IntProperty(
-        name = "Seed",
-        description = "Set the seed for the division",
-        default = 123,
-        min = 1,
-        soft_max = 1000
-        )
-
-    float_noisestrength : FloatProperty(
-        name = "Noise Strength",
-        description = "Set the noise strength",
-        default = 0,
-        min = 1,
-        max = 1
-        )
-
-    float_noiseloop : FloatProperty(
-        name = "Noise Loop",
-        description = "Set the noise Loop",
-        default = 1,
-        min = 0,
-        soft_max = 100
-        )
-        
-    float_noisefreq : FloatProperty(
-        name = "Noise Frequency",
-        description = "Set the noise frequency",
-        default = 1,
-        min = 1,
-        soft_max = 5
         )
 
     bool_create_dupliface : BoolProperty(
@@ -221,6 +197,8 @@ class dividerPanel(bpy.types.Panel):
         col.separator()
         col.prop(scene.rg_props, "float_max_span_y", slider = True)
         col.separator()
+        col.prop(scene.rg_props, "int_seed", slider = True)
+        col.separator()
         col.prop(scene.rg_props, "bool_alternate_calc")
         col.separator()
         col.prop(scene.rg_props, "bool_alternate_calc2")
@@ -251,6 +229,7 @@ class divider(bpy.types.Operator):
             
         speed = rgp.int_speed
         speed_2nd = rgp.float_speed_2nd
+        seed = rgp.int_seed
         plane_size = rgp.int_plane_size
         nb_divide = rgp.int_divisions
         min_span_x = rgp.float_min_span_x
@@ -379,7 +358,7 @@ class divider(bpy.types.Operator):
                     bpy.data.meshes.remove(block)
                  
             if not ("dividermesh" in bpy.data.meshes):
-                print("dividermesh initial creation")
+                #print("dividermesh initial creation")
                 mesh = bpy.data.meshes.new("dividermesh")  # add a new mesh
                 obj = bpy.data.objects.new("Divider", mesh)  # add a new object using the mesh
                 scene = bpy.context.scene
@@ -391,7 +370,7 @@ class divider(bpy.types.Operator):
             bm.from_mesh(me)
             bm.clear()
 
-            print("dividermesh create plane")
+            #print("dividermesh create plane")
             mesh = bpy.data.meshes['dividermesh']
             obj = bpy.data.objects['Divider']
             
@@ -450,9 +429,8 @@ class divider(bpy.types.Operator):
             bm.from_mesh(me)
             bm.faces.ensure_lookup_table()
             face_select = list(bm.faces)
-            seed = 0
             for iter in range(iterations):
-                print("iteration :", iter)
+                #print("iteration :", iter)
                 face_select = list(bm.faces)
                 for f in list(bm.faces):
                     bm.faces.ensure_lookup_table()
@@ -463,17 +441,18 @@ class divider(bpy.types.Operator):
                             minY = min(co.co.y for co in f.verts)
                             maxY = max(co.co.y for co in f.verts)     
                         if alternate_calc:
-                            #METHODE 1
+                            #METHOD 1
                             shift_x = translate(var_sinus,0,1,min_span_x,max_span_x)
                             shift_y = translate(var_cosinus,0,1,min_span_y,max_span_y)
                         else:
-                            #METHODE 2
-                            noise_x = math.sin(f.index) + seed + 1
-                            noise_y = math.cos(f.index) + seed + 0
+                            #METHOD 2
+                            noise_x = math.sin(f.index) + seed/1000 
+                            noise_y = math.cos(f.index) - seed/1000
                             noise_coord = (noise_x,noise_y,0)
                             noise = mathutils.noise.noise(noise_coord)
                             range_noise = translate(noise, -.5,.5,0,1)
-                            print("range noise", translate(noise, -.5,.5,0,1))
+                            #print("range noise", range_noise)
+                            #print("seed",seed)
                             if (f.index%2 == 0):
                                 shift_x = translate(var_cosinus+range_noise,0,2,min_span_x,max_span_x)
                                 shift_y = translate(var_sinus+(1-range_noise),0,2,min_span_y,max_span_y)
