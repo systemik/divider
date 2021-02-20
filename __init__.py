@@ -151,12 +151,12 @@ class dividerProps(PropertyGroup):
 
 class dividerPanel(bpy.types.Panel):
     # Creates a Panel in the sidebar
-    bl_label = "divider"
+    bl_label = "Divider"
     bl_idname = "OBJECT_PT_divider"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_context = "objectmode"
-    bl_category = "divider"
+    bl_category = "Divider"
     
     def draw(self, context):
         layout = self.layout
