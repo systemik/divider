@@ -5,10 +5,18 @@ License: GPL v3
 
 # How to use
 
-XXXXXX
+Download plugin and install it.
 
-If you want to start fresh, click the "DELETE ALL" button
+You can then click "create divider" on an empty scene and tweak the parameters. The system works based on frames and change geometry as soon as frame change. If you close a file and re-open it, you'll need to click "create divider" for it to work again.
 
+No support will be given.
+
+Feel free to tweak and adapt the code if required.
+
+
+# Demo video (former alpha version)
+
+[![Demo]](https://www.reddit.com/r/blender/comments/gld9b7/blender_divider_plugin_wip_may_be_dropped_for/)
 
 ## Changelog
 
